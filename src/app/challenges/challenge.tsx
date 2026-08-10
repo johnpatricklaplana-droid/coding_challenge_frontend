@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -17,27 +17,13 @@ import {
     X,
     PlayCircle,
     Lightbulb,
-    ChevronRight,
-    ChevronLeft,
 } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import JavaEditorWebView from '@/components/JavaEditorWebVeiw';
-
-// ---------- Design tokens ----------
-const colors = {
-    bg: '#F5F6F8',
-    surface: '#FFFFFF',
-    surfaceRaised: '#FFFFFF',
-    border: '#E5E7EB',
-    textPrimary: '#111827',
-    textSecondary: '#6B7280',
-    textMuted: '#9CA3AF',
-    accent: '#5B4FE9',
-    accentMuted: '#EDEBFC',
-    success: '#22C55E',
-    error: '#EF4444',
-    errorBg: '#FEF2F2',
-};
+import { colors } from '@/constants/theme';
+import { useLocalSearchParams } from 'expo-router';
+import { post } from '@/api/api';
+import { API_URL } from '@/constants/backend_url';
 
 type Tab = 'learn' | 'code' | 'tests';
 
@@ -64,8 +50,16 @@ export default function ChallengeScreen() {
     const [activeTab, setActiveTab] = useState<Tab>('code');
     const [code, setCode] = useState(DEFAULT_CODE);
 
+    const { challengeId } = useLocalSearchParams<{ challengeId: string }>();
+
+    const submit = async () => {
+        const result = await post(`${API_URL}/api/challenge/${challengeId}/complete`, { source_code: code });
+        console.log("=========================result============================");
+        console.log(result);
+    }
+
     return (
-        <SafeAreaView style={styles.safeArea}>
+        <SafeAreaView edges={['bottom']} style={styles.safeArea}>
             <StatusBar barStyle="light-content" backgroundColor={colors.bg} />
 
             {/* Tabs */}
@@ -93,20 +87,8 @@ export default function ChallengeScreen() {
             {/* Content */}
             <View style={styles.contentArea}>
                 {activeTab === 'learn' && <LearnTab />}
-                {activeTab === 'code' && <CodeTab code={code} setCode={setCode} />}
+                {activeTab === 'code' && <CodeTab submit={submit} code={code} setCode={setCode} />}
                 {activeTab === 'tests' && <TestsTab />}
-            </View>
-
-            {/* Footer nav */}
-            <View style={styles.footer}>
-                <Pressable style={styles.footerBtnGhost}>
-                    <ChevronLeft size={18} color={colors.textSecondary} />
-                    <Text style={styles.footerBtnGhostText}>Previous</Text>
-                </Pressable>
-                <Pressable style={styles.footerBtnPrimary}>
-                    <Text style={styles.footerBtnPrimaryText}>Next</Text>
-                    <ChevronRight size={18} color={colors.textPrimary} />
-                </Pressable>
             </View>
         </SafeAreaView>
     );
@@ -185,7 +167,7 @@ function LearnTab() {
 }
 
 // ---------- Code tab ----------
-function CodeTab({ code, setCode }: { code: string; setCode: (v: string) => void }) {
+function CodeTab({ code, setCode, submit }: { code: string; setCode: (v: string) => void, submit: any }) {
     return (
         <ScrollView
             style={styles.scroll}
@@ -213,7 +195,10 @@ function CodeTab({ code, setCode }: { code: string; setCode: (v: string) => void
                 </View>
             </View>
 
-            <Pressable style={styles.submitBtn}>
+            <Pressable 
+                style={styles.submitBtn}
+                onPress={submit}
+            >
                 <Text style={styles.submitBtnText}>Submit</Text>
             </Pressable>
 

@@ -1,59 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, ScrollView, Pressable } from 'react-native';
 import {
   ChevronRight,
   Play,
-  User,
-  Terminal,
-  Box,
-  Keyboard,
-  Scale,
-  RotateCw,
-  Layers,
-  Settings,
+  User
 } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-
-const colors = {
-  bg: '#F5F6F8',
-  surface: '#FFFFFF',
-  surfaceRaised: '#FFFFFF',
-  border: '#E5E7EB',
-  textPrimary: '#111827',
-  textSecondary: '#6B7280',
-  textMuted: '#9CA3AF',
-  accent: '#5B4FE9',
-  accentMuted: '#EDEBFC',
-  success: '#22C55E',
-  error: '#EF4444',
-  errorBg: '#FEF2F2',
-};
+import { GlobalResponse, Lesson } from '@/interfaces/interface';
+import { get } from '@/api/api';
+import { API_URL } from '@/constants/backend_url';
+import { colors } from '@/constants/theme';
 
 const JAVA_LOGO_URL =
   'https://picsum.photos/200/300?random=1';
 
-interface Lesson {
-  title: string;
-  subtitle: string;
-  icon: React.ComponentType<{ size?: number; color?: string }>;
-  bg: string;
-  iconColor: string;
-}
-
-const LESSONS: Lesson[] = [
-  { title: 'Printing', subtitle: 'Output to the console', icon: Terminal, bg: colors.accentMuted, iconColor: colors.accent },
-  { title: 'Variables', subtitle: 'Store and manipulate data', icon: Box, bg: colors.accentMuted, iconColor: colors.accent },
-  { title: 'Input', subtitle: 'Get data from the user', icon: Keyboard, bg: '#E6F9F1', iconColor: colors.success },
-  { title: 'If Statements', subtitle: 'Make decisions', icon: Scale, bg: '#FEF6E7', iconColor: '#D97706' },
-  { title: 'Loops', subtitle: 'Repeat tasks', icon: RotateCw, bg: '#E7F0FE', iconColor: '#2563EB' },
-  { title: 'Arrays', subtitle: 'Work with collections', icon: Layers, bg: colors.accentMuted, iconColor: colors.accent },
-  { title: 'Methods', subtitle: 'Create reusable code', icon: Settings, bg: '#E6F9F1', iconColor: colors.success },
-];
-
 export default function HomeScreen() {
 
   const router = useRouter();
+
+  const [lesson, setLesson] = useState<Lesson[]>([]);
+
+  useEffect(() => {
+    
+    const getIt = async () => {
+      const result: GlobalResponse = await get(`${API_URL}/api/lesson`);
+      setLesson(result.response_body);
+    };
+
+    getIt();
+
+  }, []);
+
+  console.log(lesson);
 
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -166,11 +145,12 @@ export default function HomeScreen() {
         </Text>
 
         <View style={{ gap: 10 }}>
-          {LESSONS.map((lesson) => (
+          {lesson?.map((less) => (
             <Pressable
-              onPress={() => { console.log("beat it")
-                 router.push('/challenges/challenge') }}
-              key={lesson.title}
+              onPress={() => 
+                 router.push({pathname: '/challenges/challenges', params: { lessonId: less.id }}) 
+              }
+              key={less.title}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -178,29 +158,18 @@ export default function HomeScreen() {
                 borderRadius: 16,
                 borderWidth: 1,
                 borderColor: colors.border,
-                padding: 14,
-                gap: 14,
+                gap: 8,
+                overflow: 'hidden'
               }}
             >
-              <View
-                style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 12,
-                  backgroundColor: lesson.bg,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <lesson.icon size={20} color={lesson.iconColor} />
-              </View>
+              <Image style={{ width: 64, height: 64 }} source={{ uri: less.thumbnailUrl }} />
 
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 15, fontWeight: '700', color: colors.textPrimary }}>
-                  {lesson.title}
+                  {less.title}
                 </Text>
                 <Text style={{ fontSize: 12.5, color: colors.textSecondary, marginTop: 2 }}>
-                  {lesson.subtitle}
+                  TODO: lesson sub title beat it like a pro
                 </Text>
               </View>
 
