@@ -17,13 +17,16 @@ import {
     X,
     PlayCircle,
     Lightbulb,
+    XCircle,
 } from 'lucide-react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import JavaEditorWebView from '@/components/JavaEditorWebVeiw';
 import { colors } from '@/constants/theme';
 import { useLocalSearchParams } from 'expo-router';
-import { post } from '@/api/api';
+import { get, post } from '@/api/api';
 import { API_URL } from '@/constants/backend_url';
+import { ChallengeWithTestCases } from '@/interfaces/interface';
+import { useVideoPlayer, VideoView } from 'expo-video';
 
 type Tab = 'learn' | 'code' | 'tests';
 
@@ -49,13 +52,38 @@ const DEFAULT_CODE = `public class Main {
 export default function ChallengeScreen() {
     const [activeTab, setActiveTab] = useState<Tab>('code');
     const [code, setCode] = useState(DEFAULT_CODE);
+    const [challengeWithTestCases, setChallengeWithTestCases] = useState<ChallengeWithTestCases | null>(null);
 
     const { challengeId } = useLocalSearchParams<{ challengeId: string }>();
+    const [challengeResult, setChallengeResult] = useState<{ message: string, passed: boolean } | null>(null);
+
+    useEffect(() => {
+  
+        if(!challengeId) return;
+
+        const getIt = async () => {
+ 
+            const result = await get(`${API_URL}/api/challenge/${challengeId}`);
+            console.log("=================beat it=======================");
+            console.log(result);
+            setChallengeWithTestCases(result.response_body);
+
+        };
+
+        getIt();
+
+    }, [challengeId]);
 
     const submit = async () => {
+        console.log("happening?");
         const result = await post(`${API_URL}/api/challenge/${challengeId}/complete`, { source_code: code });
         console.log("=========================result============================");
         console.log(result);
+
+        const challres: { message: string, passed: boolean } = result.response_body;
+
+        challres.passed ? setChallengeResult(challres) : setChallengeResult({ message: 'your a failure', passed: false });
+        
     }
 
     return (
@@ -86,9 +114,9 @@ export default function ChallengeScreen() {
 
             {/* Content */}
             <View style={styles.contentArea}>
-                {activeTab === 'learn' && <LearnTab />}
-                {activeTab === 'code' && <CodeTab submit={submit} code={code} setCode={setCode} />}
-                {activeTab === 'tests' && <TestsTab />}
+                {activeTab === 'learn' && challengeWithTestCases && <LearnTab challenge={challengeWithTestCases} />}
+                {activeTab === 'code' && challengeWithTestCases && <CodeTab result={challengeResult} submit={submit} code={code} setCode={setCode} />}
+                {activeTab === 'tests' && challengeWithTestCases && <TestsTab />}
             </View>
         </SafeAreaView>
     );
@@ -115,7 +143,15 @@ function TabButton({
 }
 
 // ---------- Learn tab ----------
-function LearnTab() {
+function LearnTab({ challenge }: Readonly<{ challenge: ChallengeWithTestCases }>) {
+    
+    const videoSource = challenge?.videoUrl;
+
+    const player = useVideoPlayer(videoSource, player => {
+        player.loop = false;
+        player.play;
+    });
+
     return (
         <ScrollView
             style={styles.scroll}
@@ -123,11 +159,9 @@ function LearnTab() {
             showsVerticalScrollIndicator={false}
         >
             <Card>
-                <CardHeader icon={<Info size={16} color={colors.accent} />} title="Description" />
-                <Text style={styles.body}>Create two variables.</Text>
-                <Bullet text="Store your name in one variable." />
-                <Bullet text="Store your age in another variable." />
-                <Bullet text="Print both variables." />
+                <CardHeader icon={<Info size={16} color={colors.accent} />} title="Challenge" />
+                <Text style={{ fontSize: 22, marginBottom: 8 }}>{challenge?.title}</Text>
+                <Text style={styles.body}>{challenge?.description}</Text>
             </Card>
 
             <Card>
@@ -143,15 +177,16 @@ function LearnTab() {
                 <CodeSnippet color={colors.success} bg="#12261E">{`String name = "John";\nSystem.out.println(name);`}</CodeSnippet>
             </Card>
 
-            <Card>
-                <CardHeader icon={<PlayCircle size={16} color={colors.accent} />} title="Video Tutorial" />
-                <Pressable style={styles.videoThumb}>
-                    <View style={styles.playCircle}>
-                        <PlayCircle size={30} color={colors.textPrimary} />
-                    </View>
-                    <Text style={styles.videoDuration}>8:12</Text>
-                </Pressable>
-            </Card>
+            <View
+            
+            >
+                <VideoView
+                    style={{ width: '100%', height: 275 }}
+                    player={player}
+                >
+
+                </VideoView>
+            </View>
 
             <Card>
                 <CardHeader icon={<Lightbulb size={16} color={colors.accent} />} title="How to Learn" />
@@ -167,7 +202,17 @@ function LearnTab() {
 }
 
 // ---------- Code tab ----------
-function CodeTab({ code, setCode, submit }: { code: string; setCode: (v: string) => void, submit: any }) {
+function CodeTab({ 
+    code, 
+    setCode, 
+    submit, 
+    result 
+}: { 
+    code: string; 
+    setCode: (v: string) => void, 
+    submit: any, 
+    result: { message: string, passed: boolean } | null }
+) {
     return (
         <ScrollView
             style={styles.scroll}
@@ -202,13 +247,53 @@ function CodeTab({ code, setCode, submit }: { code: string; setCode: (v: string)
                 <Text style={styles.submitBtnText}>Submit</Text>
             </Pressable>
 
-            <Card>
-                <CardHeader icon={<Lightbulb size={16} color={colors.accent} />} title="Remember" />
-                <Text style={styles.body}>
-                    Your code is checked automatically after you submit. Fix the errors and try again until
-                    all tests pass.
-                </Text>
-            </Card>
+            {result && 
+                <View
+                    style={{
+                        borderRadius: 16,
+                        borderWidth: 1,
+                        padding: 14,
+                        marginTop: 12,
+                        gap: 10,
+                        backgroundColor: result.passed ? '#2f6140' : colors.errorBg,
+                        borderColor: result.passed ? '#BEEACD' : '#FBD5D5',
+                    }}
+                >
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        {result.passed ? (
+                            <CheckCircle2 size={18} color={colors.success} />
+                        ) : (
+                            <XCircle size={18} color={colors.error} />
+                        )}
+                        <Text
+                            style={{
+                                fontSize: 14.5,
+                                fontWeight: '700',
+                                color: result.passed ? colors.success : colors.error,
+                            }}
+                        >
+                            {result.passed ? 'Passed' : 'your a failure try again'}
+                        </Text>
+                    </View>
+
+                    <View
+                        style={{
+                            backgroundColor: colors.surface,
+                            borderRadius: 10,
+                            padding: 10,
+                            borderWidth: 1,
+                            borderColor: colors.border,
+                        }}
+                    >
+                        <Text style={{ fontSize: 11, fontWeight: '600', color: colors.textMuted, marginBottom: 4 }}>
+                            Output
+                        </Text>
+                        <Text style={{ fontFamily: 'Menlo', fontSize: 12.5, color: colors.textPrimary }}>
+                            Sum: 12{'\n'}Program finished with exit code 0
+                        </Text>
+                    </View>
+                </View>
+            }
 
         </ScrollView>
     );

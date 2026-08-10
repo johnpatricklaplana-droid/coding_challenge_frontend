@@ -20,3 +20,16 @@ export interface Challenge {
     videoUrl: string | null;
 
 }
+
+export interface ChallengeWithTestCases {
+    id: string;
+    title: string;
+    description: string;
+    videoUrl: string | null;
+    testCases: TestCase[];
+}
+
+export interface TestCase {
+    input: string;
+    expectedOutput: string;
+}

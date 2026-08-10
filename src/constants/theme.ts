@@ -19,7 +19,7 @@ export const colors = {
     accentMuted: '#EDEBFC',
     success: '#22C55E',
     error: '#EF4444',
-    errorBg: '#FEF2F2',
+    errorBg: '#7f0e0e',
 };
 
 export const Colors = {
