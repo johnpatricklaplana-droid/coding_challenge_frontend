@@ -7,7 +7,7 @@ import {
     ScrollView,
     StyleSheet,
 } from "react-native";
-import { ChevronRight, Braces } from "lucide-react-native";
+import { ChevronRight, Braces, Check } from "lucide-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 import { get } from "@/api/api";
@@ -82,15 +82,13 @@ export default function ChallengesScreen() {
                         {challenges.map((challenge) => (
                             <Pressable
                                 key={challenge.title}
-                                onPress={() => router.push({pathname: '/challenges/challenge', params:{ challengeId: challenge.id }})}
+                                onPress={() => router.push({ pathname: '/challenges/challenge', params: { challengeId: challenge.id } })}
                                 style={({ pressed }) => [
                                     styles.challengeCard,
                                     pressed && styles.challengeCardPressed,
                                 ]}
                             >
-                                <View
-                                    style={[styles.thumbWrap]}
-                                >
+                                <View style={[styles.thumbWrap]}>
                                     <Image
                                         source={{ uri: 'https://picsum.photos/200/300?random=1' }}
                                         style={styles.thumbImage}
@@ -98,7 +96,21 @@ export default function ChallengesScreen() {
                                 </View>
 
                                 <View style={styles.challengeText}>
-                                    <Text style={styles.challengeTitle}>{challenge.title}</Text>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                                        <Text style={styles.challengeTitle}>{challenge.title}</Text>
+                                        <View
+                                            style={{
+                                                backgroundColor: '#E7F8ED',
+                                                borderRadius: 20,
+                                                paddingHorizontal: 7,
+                                                paddingVertical: 2,
+                                            }}
+                                        >
+                                            <Text style={{ fontSize: 10, fontWeight: '700', color: colors.success }}>
+                                                Done
+                                            </Text>
+                                        </View>
+                                    </View>
                                     <Text style={styles.challengeDescription} numberOfLines={3}>
                                         {challenge.description}
                                     </Text>

@@ -55,7 +55,7 @@ export default function ChallengeScreen() {
     const [challengeWithTestCases, setChallengeWithTestCases] = useState<ChallengeWithTestCases | null>(null);
 
     const { challengeId } = useLocalSearchParams<{ challengeId: string }>();
-    const [challengeResult, setChallengeResult] = useState<{ message: string, passed: boolean } | null>(null);
+    const [challengeResult, setChallengeResult] = useState<{ output: string, passed: boolean } | null>(null);
 
     useEffect(() => {
   
@@ -80,9 +80,9 @@ export default function ChallengeScreen() {
         console.log("=========================result============================");
         console.log(result);
 
-        const challres: { message: string, passed: boolean } = result.response_body;
+        const challres: { output: string, passed: boolean } = result.response_body;
 
-        challres.passed ? setChallengeResult(challres) : setChallengeResult({ message: 'your a failure', passed: false });
+        setChallengeResult(challres);
         
     }
 
@@ -211,7 +211,7 @@ function CodeTab({
     code: string; 
     setCode: (v: string) => void, 
     submit: any, 
-    result: { message: string, passed: boolean } | null }
+    result: { output: string, passed: boolean } | null }
 ) {
     return (
         <ScrollView
@@ -255,7 +255,7 @@ function CodeTab({
                         padding: 14,
                         marginTop: 12,
                         gap: 10,
-                        backgroundColor: result.passed ? '#2f6140' : colors.errorBg,
+                        backgroundColor: '#383737',
                         borderColor: result.passed ? '#BEEACD' : '#FBD5D5',
                     }}
                 >
@@ -272,24 +272,23 @@ function CodeTab({
                                 color: result.passed ? colors.success : colors.error,
                             }}
                         >
-                            {result.passed ? 'Passed' : 'your a failure try again'}
+                            {result.passed ? 'Passed you\'re a great one' : 'you\'re a failure try again'}
                         </Text>
                     </View>
 
                     <View
                         style={{
-                            backgroundColor: colors.surface,
+                            backgroundColor: '#383737',
                             borderRadius: 10,
                             padding: 10,
-                            borderWidth: 1,
-                            borderColor: colors.border,
+                            borderWidth: 1
                         }}
                     >
                         <Text style={{ fontSize: 11, fontWeight: '600', color: colors.textMuted, marginBottom: 4 }}>
                             Output
                         </Text>
-                        <Text style={{ fontFamily: 'Menlo', fontSize: 12.5, color: colors.textPrimary }}>
-                            Sum: 12{'\n'}Program finished with exit code 0
+                        <Text style={{ fontFamily: 'Menlo', fontSize: 12.5, color: '#dddad6' }}>
+                            {result.output}
                         </Text>
                     </View>
                 </View>
