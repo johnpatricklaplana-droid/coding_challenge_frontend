@@ -2,11 +2,16 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, Linking, TouchableOpacity } from 'react-native';
 import { Mail, Lock } from 'lucide-react-native';
 import { colors } from '@/constants/theme';
-import { API_URL } from '@/constants/backend_url';
+import { useUser } from './context/UserContext';
+import { Redirect } from 'expo-router';
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
+    const user = useUser().user;
+
+    if(user) return <Redirect href="/(tabs)" />
 
     return (
         <View style={styles.screen}>

@@ -3,20 +3,26 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useColorScheme } from 'react-native';
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import UserProvider from './context/UserContext';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+
   return (
-    <SafeAreaProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <AnimatedSplashOverlay />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(tabs)" />
-        </Stack>
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <UserProvider>
+      <SafeAreaProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <AnimatedSplashOverlay />
+          <Stack
+            screenOptions={{ headerShown: false }}
+          >
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="index" />
+          </Stack>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </UserProvider>
   );
 }

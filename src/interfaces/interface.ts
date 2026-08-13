@@ -33,3 +33,11 @@ export interface TestCase {
     input: string;
     expectedOutput: string;
 }
+
+export interface User {
+    id: string;
+    fullName: string;
+    avatarUrl: string;
+    email: string;
+    currentLevel: number;
+}
