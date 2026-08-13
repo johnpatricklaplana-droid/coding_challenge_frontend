@@ -18,7 +18,7 @@ export interface Challenge {
     title: string;
     description: string;
     videoUrl: string | null;
-
+    passed: boolean;
 }
 
 export interface ChallengeWithTestCases {

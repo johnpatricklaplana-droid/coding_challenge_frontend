@@ -98,18 +98,20 @@ export default function ChallengesScreen() {
                                 <View style={styles.challengeText}>
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                                         <Text style={styles.challengeTitle}>{challenge.title}</Text>
-                                        <View
-                                            style={{
-                                                backgroundColor: '#E7F8ED',
-                                                borderRadius: 20,
-                                                paddingHorizontal: 7,
-                                                paddingVertical: 2,
-                                            }}
-                                        >
-                                            <Text style={{ fontSize: 10, fontWeight: '700', color: colors.success }}>
-                                                Done
-                                            </Text>
-                                        </View>
+                                            {challenge.passed && 
+                                                <View
+                                                    style={{
+                                                        backgroundColor: '#E7F8ED',
+                                                        borderRadius: 20,
+                                                        paddingHorizontal: 7,
+                                                        paddingVertical: 2,
+                                                    }}
+                                                >
+                                                    <Text style={{ fontSize: 10, fontWeight: '700', color: colors.success }}>
+                                                        Done
+                                                    </Text>
+                                                </View>
+                                            }
                                     </View>
                                     <Text style={styles.challengeDescription} numberOfLines={3}>
                                         {challenge.description}
