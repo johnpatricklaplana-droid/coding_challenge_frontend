@@ -5,7 +5,7 @@ import { API_URL } from "@/constants/backend_url";
 
 const HistoryContext = createContext<{
     history: History[]; 
-    setHistory: (history: History[]) => void; 
+    setHistory: React.Dispatch<React.SetStateAction<History[]>>; 
 }>(
 {
     history: [], 

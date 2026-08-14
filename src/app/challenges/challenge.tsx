@@ -25,8 +25,9 @@ import { colors } from '@/constants/theme';
 import { useLocalSearchParams } from 'expo-router';
 import { get, post } from '@/api/api';
 import { API_URL } from '@/constants/backend_url';
-import { ChallengeWithTestCases } from '@/interfaces/interface';
+import { ChallengeWithTestCases, History } from '@/interfaces/interface';
 import { useVideoPlayer, VideoView } from 'expo-video';
+import { useHistory } from '../context/HistoryContext';
 
 type Tab = 'learn' | 'code' | 'tests';
 
@@ -57,6 +58,8 @@ export default function ChallengeScreen() {
     const { challengeId } = useLocalSearchParams<{ challengeId: string }>();
     const [challengeResult, setChallengeResult] = useState<{ output: string, passed: boolean } | null>(null);
 
+    const setHistory = useHistory().setHistory;
+
     useEffect(() => {
   
         if(!challengeId) return;
@@ -81,8 +84,10 @@ export default function ChallengeScreen() {
         console.log(result);
 
         const challres: { output: string, passed: boolean } = result.response_body;
+        const history: History = result.response_body.history;
 
         setChallengeResult(challres);
+        setHistory(prev => [history, ...prev]);
         
     }
 
