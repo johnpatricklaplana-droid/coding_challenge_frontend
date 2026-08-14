@@ -41,3 +41,11 @@ export interface User {
     email: string;
     currentLevel: number;
 }
+
+export interface History {
+    challenge_id: string;
+    challengeThumbnail: string;
+    passed: boolean;
+    title: string;
+    description: string;
+}
