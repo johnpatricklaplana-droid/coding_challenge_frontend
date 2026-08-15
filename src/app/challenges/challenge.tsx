@@ -15,7 +15,6 @@ import {
     ListChecks,
     Check,
     X,
-    PlayCircle,
     Lightbulb,
     XCircle,
 } from 'lucide-react-native';
@@ -132,12 +131,12 @@ function TabButton({
     icon,
     active,
     onPress,
-}: {
+}: Readonly<{
     label: string;
     icon: React.ReactNode;
     active: boolean;
     onPress: () => void;
-}) {
+}>) {
     return (
         <Pressable style={styles.tabBtn} onPress={onPress}>
             {icon}
@@ -212,11 +211,11 @@ function CodeTab({
     setCode, 
     submit, 
     result 
-}: { 
+}: Readonly<{ 
     code: string; 
     setCode: (v: string) => void, 
     submit: any, 
-    result: { output: string, passed: boolean } | null }
+    result: { output: string, passed: boolean } | null }>
 ) {
     return (
         <ScrollView

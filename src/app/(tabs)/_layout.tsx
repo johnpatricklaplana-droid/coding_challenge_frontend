@@ -1,40 +1,86 @@
-import { NativeTabs } from 'expo-router/unstable-native-tabs';
-import { useColorScheme } from 'react-native';
+import { Tabs } from 'expo-router';
+import { View, Text, Pressable } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Home, History, User } from 'lucide-react-native';
+import { colors } from '@/constants/theme';
 
-import { Colors } from '@/constants/theme';
+const tabs = [
+  { name: 'index', label: 'Home', icon: Home },
+  { name: 'history', label: 'History', icon: History },
+  { name: 'profile', label: 'Profile', icon: User },
+];
 
-export default function AppTabs() {
-  const scheme = useColorScheme();
-  const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
+function CustomTabBar({ state, navigation }: any) {
+  const insets = useSafeAreaInsets();
 
   return (
-    <NativeTabs
-      backgroundColor={colors.background}
-      indicatorColor={colors.backgroundElement}
-      labelStyle={{ selected: { color: colors.text } }}>
-      <NativeTabs.Trigger name="index">
-        <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/home.png')}
-          renderingMode="template"
-        />
-      </NativeTabs.Trigger>
+    <View
+      style={{
+        marginBottom: insets.bottom + 14,
+        width: '90%',
+        marginHorizontal: 'auto',
+        borderRadius: 30,
+        paddingHorizontal: 8,
+        paddingVertical: 8,
+        backgroundColor: colors.surfaceRaised,
+      }}
+    >
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+        {state.routes.map((route: any, index: number) => {
+          const isFocused = state.index === index;
+          const tab = tabs.find((t) => t.name === route.name);
+          if (!tab) return null;
+          const Icon = tab.icon;
 
-      <NativeTabs.Trigger name="history">
-        <NativeTabs.Trigger.Label>History</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
-        />
-      </NativeTabs.Trigger>
+          return (
+            <Pressable
+              key={route.key}
+              onPress={() => navigation.navigate(route.name)}
+              style={{ flex: 1, alignItems: 'center' }}
+              hitSlop={8}
+            >
+              <View
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 24,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Icon
+                  size={22}
+                  color={isFocused ? colors.accent : colors.textMuted}
+                  strokeWidth={isFocused ? 2.4 : 2}
+                />
+              </View>
+              <Text
+                style={{
+                  fontSize: 11,
+                  fontWeight: isFocused ? '800' : '600',
+                  color: isFocused ? colors.accent : colors.textMuted,
+                }}
+              >
+                {tab.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
 
-      <NativeTabs.Trigger name="profile">
-        <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
-        />
-      </NativeTabs.Trigger>
-    </NativeTabs>
+export default function AppTabs() {
+  return (
+    <Tabs 
+      tabBar={(props) => <CustomTabBar {...props} />} 
+      screenOptions={{ 
+        headerShown: false
+      }}>
+      <Tabs.Screen name="index" />
+      <Tabs.Screen name="history" />
+      <Tabs.Screen name="profile" />
+    </Tabs>
   );
 }
